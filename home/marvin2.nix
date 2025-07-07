@@ -10,29 +10,16 @@
 
   daveHome.kitty.enable = true;
   daveHome.tmux.enable = true;
-  daveHome.obsidian.enable = true;
   daveHome.zsh.enable = true;
   daveHome.gnome.enable = true;
-  daveHome.hyprland.enable = false;
   daveHome.direnv.enable = true;
+  daveHome.hyprland.enable = false;
+  daveHome.obsidian.enable = true;
+  daveHome.logseq.enable = false;
 
   dave-i3config.enable = true;
-  dave-i3config.i3Font = {
-    names = [ "Hack Nerd Font" ];
-    size = 11.0;
-  };
-  dave-i3config.i3BarFont = {
-    names = [ "Hack Nerd Font" ];
-    size = 11.0;
-  };
-  dave-i3config.rofiFont = "Hack Nerd Font 24";
   dave-i3config.i3BlocksBatteryBar = true;
   dave-i3config.i3BlocksWifiBar = true;
-  dave-i3config.browser = "chromium --force-device-scale-factor=2";
-
-  xresources.properties = {
-    "Xft.dpi" = 196;
-  };
 
   programs.kitty.font.size = 11;
 
@@ -107,9 +94,11 @@
     # dave:users and an ssh-key that is registered with the server.
     # i did this because setting up an fstab and systemd automount for a
     # share with a passphrase-protected key is a PITA.
-    "mnt-documents" = "sshfs -v -p6969 dave@guinness:/backup/Documents /mnt/Documents -o user,uid=$(id -u dave),gid=$(id -g dave),noatime,nosuid,_netdev,noauto,dir_cache=no,nodev";
+    "mnt-documents" =
+      "sshfs -v -p6969 dave@guinness:/backup/Documents /mnt/Documents -o user,uid=$(id -u dave),gid=$(id -g dave),noatime,nosuid,_netdev,noauto,dir_cache=no,nodev";
     "umount-documents" = "fusermount3 -u /mnt/Documents";
-    "view-documents" = "if ! mountpoint /mnt/Documents > /dev/null 2>&1; then mnt-documents; fi; nautilus /mnt/Documents";
+    "view-documents" =
+      "if ! mountpoint /mnt/Documents > /dev/null 2>&1; then mnt-documents; fi; nautilus /mnt/Documents";
     "sync-docs" = "rsync -advl /home/dave/Documents/ guinness:/backup/Documents/";
     "nvim" = "nix run ~/source/dave-nvim-lazy --";
   };

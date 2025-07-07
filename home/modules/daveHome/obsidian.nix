@@ -14,7 +14,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    # XXX this is for obsidian :(
+    # XXX this is for obsidian
     nixpkgs.config.permittedInsecurePackages = [
       "electron-25.9.0"
     ];

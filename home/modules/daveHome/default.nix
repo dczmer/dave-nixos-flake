@@ -6,15 +6,15 @@
 }:
 {
   imports = [
-    ./daveHome/kitty.nix
-    ./daveHome/tmux.nix
-    ./daveHome/obsidian.nix
-    ./daveHome/logseq.nix
-    ./daveHome/zsh.nix
-    ./daveHome/firefox.nix
-    ./daveHome/gnome.nix
-    ./daveHome/hyprland.nix
-    ./daveHome/direnv.nix
+    ./kitty.nix
+    ./tmux.nix
+    ./obsidian.nix
+    ./logseq.nix
+    ./zsh.nix
+    ./firefox.nix
+    ./gnome.nix
+    ./hyprland.nix
+    ./direnv.nix
   ];
 
   options.daveHome =
@@ -27,7 +27,7 @@
       # Workaround for https://github.com/nix-community/home-manager/issues/2942
       allowUnfreePredicate = _: true;
     };
-    nixpkgs.overlays = [ nur.overlay ];
+    nixpkgs.overlays = [ nur.overlays.default ];
 
     home = {
       username = "dave";
@@ -47,20 +47,21 @@
         pinentry
         noto-fonts
         noto-fonts-emoji
-        nerdfonts
+        hack-font
+        font-awesome
         dave-nvim-flake.packages.x86_64-linux.default
       ];
     };
 
     # simple borg backup script
     home.file."bin/backup.sh" = {
-      source = ../scripts/backup.sh;
+      source = ./scripts/backup.sh;
       recursive = true;
       executable = true;
     };
 
     home.file."Wallpapers" = {
-      source = ../wallpaper;
+      source = ./wallpaper;
     };
 
     programs.git = {
@@ -85,17 +86,11 @@
     programs.taskwarrior = {
       enable = true;
       package = pkgs.taskwarrior3;
-      config = {
-        taskd = {
-          # TODO use own ca and keys
-          # certificate =
-          # key =
-          # ca =
-          server = "guinness:53589";
+      config =
+        {
         };
-      };
     };
-    services.taskwarrior-sync.enable = true;
+    #services.taskwarrior-sync.enable = true;
 
     programs.gpg = {
       enable = true;
@@ -104,7 +99,7 @@
     services.gpg-agent = {
       enable = true;
       # TODO: only if daveHome.gnome.enabled; else `cli`
-      pinentryPackage = pkgs.pinentry-gnome3;
+      pinentry.package = pkgs.pinentry-gnome3;
     };
 
     programs.password-store = {

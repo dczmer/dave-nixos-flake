@@ -8,7 +8,7 @@
 {
   imports = [
     # base settings for all of my machines
-    ../modules
+    ../modules/baseSystem
 
     # include results of the hardware scan
     ./hardware-configuration.nix
@@ -30,6 +30,10 @@
 
   fileSystems."/steam1".neededForBoot = true;
   fileSystems."/steam2".neededForBoot = true;
+
+  # enable virt-manager
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
 
   networking.hostName = "lucky";
   networking.networkmanager.enable = true;
@@ -57,21 +61,14 @@
   };
   networking.defaultGateway = "192.168.1.1";
 
-  # TODO: this has worked for over a year without issue but suddenly broken.
-  #       these files get concatenated together with the system-installed ca
-  #       files, to produce the final ca bundle in /etc.
-  #       i guess the issue is that referencing something from /var is not
-  #       'pure' because it's not completely deterministic, which makes sense.
-  #       maybe i need to make a derivation for this and then reference that?
-  #security.pki.certificateFiles = [
-  #  /var/certs/daveCA.pem
-  #];
-
   baseSystem.zsh = true;
   baseSystem.users.dave = {
-    extraGroups = [ "networkmanager" ];
+    extraGroups = [
+      "networkmanager"
+      "libvirtd"
+    ];
     authorizedKeys = [
-      # REDACTED
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBGdv9tCrmZCeuEPKYlgL7exHsq2zxtYiYZYtZ0ug/r5 dczmer@gmail.com"
     ];
   };
   baseSystem.docker.enable = true;
@@ -80,10 +77,11 @@
   baseSystem.printing.enable = true;
   baseSystem.printing.allowDiscovery = false;
   baseSystem.chromium.enable = true;
+  baseSystem.i3.enable = true;
 
   services.xserver.videoDrivers = [ "amdgpu" ];
+
   programs.steam.enable = true;
-  programs.hyprland.enable = false;
 
   # only system-level packages or things that will be needed by root
   environment.systemPackages = with pkgs; [
@@ -103,7 +101,10 @@
     gnome-tweaks
     gnomeExtensions.appindicator
     sshfs-fuse
+    xorg.xrdb
   ];
+
+  nixpkgs.config.allowUnfree = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

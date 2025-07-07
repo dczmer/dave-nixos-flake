@@ -20,11 +20,11 @@
 #     have completed.
 #   - don't sleep while my cellphone is connected to wifi (while I'm at home).
 #
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   imports = [
     # base settings for all of my machines
-    ../modules
+    ../modules/baseSystem
 
     ./hardware-configuration.nix
   ];
@@ -59,9 +59,10 @@
   users.users.git = {
     isNormalUser = true;
     group = "git";
-    # TODO: is this a good way to do the git user access with the existing keys? seems fine for this home usage only
     openssh.authorizedKeys.keys = [
-      # REDACTED
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBGdv9tCrmZCeuEPKYlgL7exHsq2zxtYiYZYtZ0ug/r5 dczmer@gmail.com"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICYJp/TzZf/9qQWoWMi05q5Mp1Ga8RNcjpl9sTWv5F46 dave@lucky"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGZ4IiH8c+JT5NPZnvR3MLg5bQ6xE39DHSLp4wTDoISI dave@marvin2"
     ];
   };
 
@@ -76,7 +77,9 @@
   baseSystem.users.dave = {
     extraGroups = [ "borg" ];
     authorizedKeys = [
-      # REDACTED
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBGdv9tCrmZCeuEPKYlgL7exHsq2zxtYiYZYtZ0ug/r5 dczmer@gmail.com"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICYJp/TzZf/9qQWoWMi05q5Mp1Ga8RNcjpl9sTWv5F46 dave@lucky"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGZ4IiH8c+JT5NPZnvR3MLg5bQ6xE39DHSLp4wTDoISI dave@marvin2"
     ];
   };
   baseSystem.docker.enable = true;
@@ -97,48 +100,14 @@
     screen
     parted
     openssl
-    nginx
     htop
-    syncstorage-rs
   ];
-
-  security.acme.acceptTerms = false;
-  services.nginx = {
-    enable = true;
-    recommendedTlsSettings = true;
-    recommendedOptimisation = true;
-    recommendedGzipSettings = true;
-    recommendedProxySettings = true;
-
-    virtualHosts = {
-      "guinneweb" = {
-        forceSSL = true;
-        sslCertificate = /var/keys/guinneweb.pem;
-        sslCertificateKey = /var/keys/guinneweb.key;
-        enableACME = pkgs.lib.mkForce false;
-        listen = [
-          {
-            port = 8443;
-            addr = "0.0.0.0";
-            ssl = true;
-          }
-        ];
-        locations."/" = {
-          root = "/var/www/guinneweb";
-        };
-      };
-    };
-  };
 
   # 6969 = ssh
   # 8200 = minidlna
-  # 8443 = nginx (guinneweb)
-  # 53589 = taskserver
   networking.firewall.allowedTCPPorts = [
     6969
     8200
-    8443
-    53589
   ];
   networking.firewall.allowedUDPPorts = [ ];
   networking.hostName = "guinness";
@@ -164,16 +133,6 @@
     192.168.1.135 lucky
   '';
   networking.defaultGateway = "192.168.1.1";
-
-  # TODO: this has worked for over a year without issue but suddenly broken.
-  #       these files get concatenated together with the system-installed ca
-  #       files, to produce the final ca bundle in /etc.
-  #       i guess the issue is that referencing something from /var is not
-  #       'pure' because it's not completely deterministic, which makes sense.
-  #       maybe i need to make a derivation for this and then reference that?
-  #security.pki.certificateFiles = [
-  #  /var/certs/daveCA.pem
-  #];
 
   nix.gc.automatic = true;
   nix.gc.dates = "04:00";
@@ -211,17 +170,10 @@
   #};
   powerManagement.enable = true;
 
-  services.taskserver = {
-    enable = true;
-    fqdn = "guinness";
-    listenHost = "::";
-    organisations.DaveCo.users = [ "dave" ];
-  };
-
   services.minidlna.enable = true;
   services.minidlna.openFirewall = true;
   services.minidlna.settings.media_dir = [
-    "V,/m1/Video"
+    "V,/var/m1/1/.cache"
   ];
   services.minidlna.settings.port = 8200;
   services.minidlna.settings.inotify = "yes";
@@ -232,21 +184,23 @@
       path = "/backup/marvin";
       group = "borg";
       authorizedKeys = [
-        # REDACTED
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBGdv9tCrmZCeuEPKYlgL7exHsq2zxtYiYZYtZ0ug/r5 dczmer@gmail.com"
       ];
     };
     lucky = {
       path = "/backup/lucky";
       group = "borg";
       authorizedKeys = [
-        # REDACTED
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICYJp/TzZf/9qQWoWMi05q5Mp1Ga8RNcjpl9sTWv5F46 dave@lucky"
       ];
     };
     guinness = {
       path = "/backup/guinness";
       group = "borg";
       authorizedKeys = [
-        # REDACTED
+        # TODO: this is a local vault but requires an authorized key for config.
+        #       i think there is an option to use instead of supplying a dummy key.
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBGdv9tCrmZCeuEPKYlgL7exHsq2zxtYiYZYtZ0ug/r5 dczmer@gmail.com"
       ];
     };
   };
@@ -264,20 +218,18 @@
 
   # Minidlna doesn't support suspend/resume.
   # Create a udev rule to force-reload it on resume.
-  # TODO: this doesn't work still :( wantedby 'resume.target'?
   systemd.services.restart-minidlna = {
     description = "Restart minidlna after resume";
     wantedBy = [
-      "suspend.target"
-      "hibernate.target"
-      "basic.target"
+      "post-resume.target"
     ];
     after = [
-      "suspend.target"
-      "hibernate.target"
-      "basic.target"
+      "post-resume.target"
     ];
-    serviceConfig.ExecStart = "systemctl --no-block restart minidlna";
+    script = ''
+      systemctl --no-block restart minidlna
+    '';
+    serviceConfig.Type = "oneshot";
   };
 
   #systemd.services.raid-monitor = {

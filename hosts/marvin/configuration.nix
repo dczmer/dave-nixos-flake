@@ -4,9 +4,7 @@
 }:
 {
   imports = [
-    # base settings for all of my machines
-    ../modules
-
+    ../modules/baseSystem
     ./hardware-configuration.nix
   ];
 
@@ -37,6 +35,11 @@
   };
   fileSystems."/boot".neededForBoot = true;
 
+  # enable virt-manager
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
+  baseSystem.users.dave.extraGroups = [ "libvirtd" ];
+
   networking.hostName = "marvin";
   networking.networkmanager.enable = true;
   networking.hosts = {
@@ -53,21 +56,14 @@
   networking.firewall.allowedTCPPorts = [ 6969 ];
   networking.firewall.allowedUDPPorts = [ 1900 ];
 
-  # TODO: this has worked for over a year without issue but suddenly broken.
-  #       these files get concatenated together with the system-installed ca
-  #       files, to produce the final ca bundle in /etc.
-  #       i guess the issue is that referencing something from /var is not
-  #       'pure' because it's not completely deterministic, which makes sense.
-  #       maybe i need to make a derivation for this and then reference that?
-  #security.pki.certificateFiles = [
-  #  /var/certs/daveCA.pem
-  #];
-
   baseSystem.zsh = true;
   baseSystem.gnome.enable = true;
   baseSystem.printing.enable = true;
   baseSystem.printing.allowDiscovery = false;
   baseSystem.chromium.enable = true;
+  baseSystem.docker.enable = true;
+  baseSystem.i3.enable = true;
+  baseSystem.laptop.enable = true;
 
   programs.hyprland.enable = false;
   programs.steam.enable = true;
@@ -86,10 +82,7 @@
     borgbackup
   ];
 
-  powerManagement.enable = true;
-
-  services.logind.lidSwitch = "suspend";
-  services.logind.lidSwitchDocked = "lock";
+  nixpkgs.config.allowUnfree = true;
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

@@ -20,13 +20,18 @@ in
         name = "Hack Nerd Font";
       };
       shellIntegration.enableZshIntegration = true;
-      themeFile = "Afterglow";
+      themeFile = "Dark_Pastel";
       settings = {
         scrollback_lines = 50000;
         hide_window_decorations = true;
-        background_opacity = "0.9";
+        background_opacity = "0.7";
         cursor = "none";
         custor_text_color = "#FFFFFF";
+        clipboard_control = true;
+        write_primary = true;
+        write_clipboard = true;
+        no_append = true;
+        window_padding_width = 2;
       };
       package = pkgs.symlinkJoin {
         name = "kitty-tmux";
@@ -36,6 +41,9 @@ in
           wrapProgram $out/bin/kitty --add-flags "-e tmux new-session -AD -s dave"
         '';
       };
+    };
+    programs.zsh.shellAliases = {
+      "icat" = "kitten icat";
     };
   };
 }

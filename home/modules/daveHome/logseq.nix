@@ -15,7 +15,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    # NOTE this is for obsidian :(
+    # NOTE this is for logseq :(
     nixpkgs.config.permittedInsecurePackages = [
       "electron-25.9.0"
     ];

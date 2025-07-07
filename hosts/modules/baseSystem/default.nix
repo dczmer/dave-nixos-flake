@@ -13,17 +13,21 @@ in
 {
   imports = [
     # common users and groups
-    ./baseSystem/users.nix
+    ./users.nix
     # gnome and x stuff
-    ./baseSystem/gnome.nix
+    ./gnome.nix
     # docker
-    ./baseSystem/docker.nix
+    ./docker.nix
     # sshd
-    ./baseSystem/ssh.nix
+    ./ssh.nix
     # home printer
-    ./baseSystem/printing.nix
+    ./printing.nix
     # chromium - home manager version not configurable :)
-    ./baseSystem/chromium.nix
+    ./chromium.nix
+    # i3
+    ./i3.nix
+    # common laptop-specific config
+    ./laptop.nix
   ];
 
   options.baseSystem = {
@@ -68,6 +72,7 @@ in
     security.polkit.enable = true;
 
     environment.systemPackages = with pkgs; [
+      bc
       cachix
       man
       file
@@ -81,7 +86,6 @@ in
       nix-prefetch-docker
       nix-output-monitor
 
-      # install regular vim with basic config, for root to use and in case the neovim flake is broken.
       ((vim_configurable.override { }).customize {
         name = "vim";
         vimrcConfig.packages.myplugins = with pkgs.vimPlugins; {

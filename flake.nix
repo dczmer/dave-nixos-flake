@@ -1,8 +1,9 @@
 {
-
   description = "Dave's NixOS Flake";
   nixConfig = {
-    trusted-users = [ "dave" ];
+    trusted-users = [
+      "dave"
+    ];
     extra-substituters = [
       "https://nix-community.cachix.org"
     ];
@@ -57,6 +58,19 @@
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = inputs;
               home-manager.users.dave = import ./home/marvin.nix;
+            }
+          ];
+        };
+        "marvin2" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./hosts/marvin2/configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = false;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = inputs;
+              home-manager.users.dave = import ./home/marvin2.nix;
             }
           ];
         };

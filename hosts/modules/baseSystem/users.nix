@@ -53,12 +53,12 @@ in
       createHome = true;
       uid = 1001;
       home = "/home/dave";
-      extraGroups = [ "wheel" ] ++ cfg.dave.extraGroups;
+      extraGroups = [ "wheel" "networkmanager" ] ++ cfg.dave.extraGroups;
       shell = cfg.shell;
       packages =
         [
         ];
-      hashedPassword = "REDACTED";
+      hashedPassword = "$y$j9T$2mszdlHHHEnRl/OWm2wm3/$RVQzKxMkrPSrHxnUDNK8VQaWlhmRaIrtjfWxj.Nlyf8";
       openssh.authorizedKeys.keys = cfg.dave.authorizedKeys;
     };
 

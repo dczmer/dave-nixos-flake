@@ -4,17 +4,22 @@
 }:
 {
   imports = [
-    ./modules
+    ./modules/daveHome
+    ./modules/dave-i3config
   ];
 
   daveHome.kitty.enable = true;
   daveHome.tmux.enable = true;
   daveHome.obsidian.enable = true;
+  daveHome.logseq.enable = true;
   daveHome.zsh.enable = true;
-  daveHome.zsh.cfgFile = ./zsh/lucky-p10k.zsh;
   daveHome.gnome.enable = true;
   daveHome.hyprland.enable = false;
   daveHome.direnv.enable = true;
+
+  dave-i3config.enable = true;
+  dave-i3config.i3BlocksBatteryBar = false;
+  dave-i3config.i3BlocksWifiBar = false;
 
   programs.kitty.font.size = 14;
 
@@ -25,6 +30,7 @@
         "chromium-browser.desktop"
         "kitty.desktop"
         "obsidian.desktop"
+        "logseq.desktop"
         "spotify.desktop"
         "steam.desktop"
       ];
@@ -47,6 +53,12 @@
     "org/gnome/desktop/media-handling" = {
       autorun-never = true;
     };
+
+    # TODO: extract to daveHome.libVert
+    "org/virt-manager/virt-manager/connections" = {
+      autoconnect = [ "qemu:///system" ];
+      uris = [ "qemu:///system" ];
+    };
   };
 
   home.packages = with pkgs; [
@@ -62,5 +74,9 @@
       port = 6969;
       identityFile = "/home/dave/.ssh/keys/id_ed25519";
     };
+  };
+
+  programs.zsh.shellAliases = {
+    "nvim" = "nix run ~/source/dave-nvim-lazy --";
   };
 }

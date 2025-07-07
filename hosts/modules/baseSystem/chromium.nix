@@ -31,6 +31,8 @@ with lib;
         "eimadpbcbfnmbkopoojfekhnkhdbieeh"
         # xbrowsersync
         "lcbjdhceifofjlpecfpeimnnphbcjgnc"
+        # react dev tools
+        "fmkadmapgofadopljbjfkapdkoienihi"
       ];
       homepageLocation = "https://nixos.org";
       extraOpts = {
@@ -57,7 +59,7 @@ with lib;
         "DefaultSearchProviderKeyword" = "duckduckgo.com";
         "DefaultSearchProviderSearchURL" = "https://duckduckgo.com/?q={searchTerms}";
 
-        # TODO: font size/scaling?
+        # TODO: font size?
       };
     };
   };

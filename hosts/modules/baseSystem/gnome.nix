@@ -26,8 +26,8 @@ in
 
     services.xserver.enable = true;
     programs.dconf.enable = true;
-    services.xserver.desktopManager.gnome.enable = true;
-    services.xserver.displayManager.gdm.enable = true;
+    services.desktopManager.gnome.enable = true;
+    services.displayManager.gdm.enable = true;
     services.gnome.gnome-keyring.enable = true;
 
     environment.gnome.excludePackages = (
@@ -51,7 +51,7 @@ in
       ]
     );
 
-    hardware.pulseaudio.enable = false;
+    services.pulseaudio.enable = false;
 
     hardware.graphics.enable = true;
     hardware.graphics.extraPackages = [
@@ -63,12 +63,10 @@ in
         material-design-icons
         noto-fonts
         noto-fonts-emoji
-        (nerdfonts.override {
-          fonts = [
-            "FiraCode"
-            "JetBrainsMono"
-          ];
-        })
+        fira-code
+        fira-code-symbols
+        jetbrains-mono
+        hack-font
       ];
       enableDefaultPackages = false;
       fontconfig.defaultFonts = {
@@ -81,7 +79,7 @@ in
           "Noto Color Sans"
         ];
         monospace = [
-          "JetBrainsMono Nerd Font"
+          "JetBrainsMono"
           "Noto Color Emoji"
         ];
         emoji = [ "Noto Color Emoji" ];

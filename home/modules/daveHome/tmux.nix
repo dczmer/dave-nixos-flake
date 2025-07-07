@@ -15,22 +15,40 @@ in
   config = mkIf cfg.enable {
     programs.tmux = {
       enable = true;
+      aggressiveResize = false;
       clock24 = true;
+      escapeTime = 10;
+      focusEvents = false;
       historyLimit = 50000;
       keyMode = "vi";
-      prefix = "`";
-      terminal = "screen-256color";
+      mouse = false;
+      prefix = "C-a";
+      terminal = "tmux-256color";
       newSession = true;
       extraConfig = ''
-        set -g status-style bg='#27385d',fg='#CFCFCF'
+        set -g renumber-windows on
+        set -s set-clipboard external
+
+        set -g status-style bg='#111111',fg='#CCCCCC',us='#CCCCCC'
         set -g status-interval 1
+        set -g status-left '#[fg=#4EA1FF]#{?window_zoomed_flag,󰍉 ,}[#S(#{session_attached})] '
+        set -g status-left-length 20
+        set -g status-right '#[fg=#4EA1FF]%Y-%m-%d %T %A'
+        set -g status-right-length 50
         set-option -g status-position bottom
-        set -g status-left '[#(hostname)] '
-        set-option -sg escape-time 10
+        set-option -g window-status-current-style fg=#BD5EFF
+        set-option -g pane-border-style fg=#999999
+        set-option -g pane-active-border-style fg=#4EA1FF
 
         bind-key j command-prompt -p "join pane from: " "join-pane -s '%%'"
         bind-key s command-prompt -p "join pane to: " "join-pane -t '%%'"
         bind-key b command-prompt "break-pane"
+
+        unbind r
+        bind r source-file ~/.config/tmux/tmux.conf
+
+        bind-key -T copy-mode-vi 'v' send -X begin-selection
+        bind-key -T copy-mode-vi 'y' send -X copy-selection-and-cancel
 
         # vim/tmux-navigator keybinds
         is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
